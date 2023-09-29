@@ -67,3 +67,113 @@ export async function listReservations(params, signal) {
     .then(formatReservationDate)
     .then(formatReservationTime);
 }
+
+export async function createReservation(newReservation) {
+  const url = `${API_BASE_URL}/reservations`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ data: newReservation }),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Network response was not ok: ${errorText}`);
+  }
+
+  return await response.json();
+}
+
+export async function listTables(signal) {
+  const url = `${API_BASE_URL}/tables`;
+  return await fetchJson(url, { headers, signal }, []);
+}
+
+export async function createTable(newTable) {
+  try {
+    const url = `${API_BASE_URL}/tables/new`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTable),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Network response was not ok: ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error during fetch operation: ', error);
+    throw error;
+  }
+}
+
+export async function updateReservation(reservationId, updatedReservation) {
+  try {
+    const url = `${API_BASE_URL}/reservations/${reservationId}/seat`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: updatedReservation }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Network response was not ok: ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error during fetch operation: ', error);
+    throw error;
+  }
+}
+
+export async function updateTable(table_id, updatedTable) {
+  try {
+    const url = `${API_BASE_URL}/tables/${table_id}/seat`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+          data: { 
+              ...updatedTable, 
+              reservation_id: updatedTable.reservation_id
+          }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Network response was not ok: ${errorText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error during fetch operation: ', error);
+    throw error;
+  }
+}
+
+export async function handleFinish(table_id) {
+  if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
+      try {
+          await fetch(`${API_BASE_URL}/tables/${table_id}/seat`, {
+              method: 'DELETE',
+          });
+          window.location.reload();
+      } catch (error) {
+          console.error('Error during DELETE operation: ', error);
+      }
+  }
+}
