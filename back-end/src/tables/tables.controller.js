@@ -1,38 +1,17 @@
 const service = require("./tables.service");
+const reservationsService = require("../reservations/reservations.service")
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
-
-function validateDataExists(req, res, next) {
-    if (req.body && req.body.data) {
-        return next();
-    }
-    next({ status: 400, message: 'Data is missing in the request body' });
-}
-
-function validateStringField(field, minLength) {
-    return function (req, res, next) {
-        const value = req.body.data[field];
-        if (value && typeof value === 'string' && value.trim().length >= minLength) {
-            return next();
-        }
-        next({ status: 400, message: `${field} is missing or does not meet the minimum length of ${minLength}.` });
-    }
-}
-
-function validateCapacity(req, res, next) {
-    const { capacity } = req.body.data;
-    if (typeof capacity === 'number' && capacity > 0) {
-        return next();
-    }
-    next({ status: 400, message: `capacity must be a number greater than 0.` });
-}
-
-function validateReservationIdExists(req, res, next) {
-    const { reservation_id } = req.body.data; // Adjust based on your actual request body structure
-    if (reservation_id) {
-        return next();
-    }
-    next({ status: 400, message: 'reservation_id is missing in the request body' });
-}
+const {
+    validateNotAlreadySeated,
+    validateDataExists,
+    validateStringField,
+    validateCapacity,
+    validateReservationIdExists,
+    reservationIdExists,
+    validateTable,
+    validateTableCapacity,
+    validateTableOccupied,
+} = require("./tables.validation")
 
 async function list(req, res) {
     const data = await service.list()
@@ -41,27 +20,27 @@ async function list(req, res) {
 
 async function create(req, res) {
     const newTable = req.body.data;
-    const data = await service.create(newTable);
+    const [data] = await service.create(newTable);
+    data.capacity = Number(data.capacity);
     res.status(201).json({ data });
 }
 
 async function update(req, res, next) {
     try {
         const { table_id } = req.params;
-        const { status, ...otherProps } = req.body.data; // Destructure the status, and otherProps you want to allow to be updated.
+        const { reservation_id, ...otherProps } = req.body.data;
         
+        await reservationsService.update({ reservation_id: reservation_id, status: 'seated' });
+
         const updatedTable = {
             ...otherProps,
             table_id,
-            status: "occupied" // This ensures that status is always "occupied"
+            reservation_id,
+            status: "occupied" 
         };
 
-        const [data] = await service.update(updatedTable); // Destructure the array to get the updated row
-        
-        if (!data) {
-            return next({ status: 404, message: `Table with id ${table_id} not found` });
-        }
-
+        const [data] = await service.update(updatedTable);
+    
         res.status(200).json({ data });
     } catch (error) {
         next(error);
@@ -69,16 +48,21 @@ async function update(req, res, next) {
 }
 
 async function unseat(req, res, next) {
-    const { table_id } = req.params;
     try {
-        const table = await service.read(table_id); // Make sure service.read is implemented to fetch the table.
-        if (!table) return next({ status: 404, message: `Table ${table_id} cannot be found.` });
+        const { table_id } = req.params;
+        const table = await service.read(table_id);
+        const { reservation_id } = table;
+        await reservationsService.update({ reservation_id, status: 'finished' });
 
-        if (table.status !== "occupied") return next({ status: 400, message: `Table ${table_id} is not occupied.` });
+        const updatedTable = {
+            table_id,
+            status: "free",
+            reservation_id: null
+        };
 
-        // unseat the table
-        const updatedTable = await service.unseat(table_id);
-        res.status(200).json({ data: updatedTable });
+        const data = await service.update(updatedTable);
+        res.status(200).json({ data });
+
     } catch (error) {
         next(error);
     }
@@ -95,7 +79,14 @@ module.exports= {
     update: [
         asyncErrorBoundary(validateDataExists),
         asyncErrorBoundary(validateReservationIdExists),
+        asyncErrorBoundary(validateNotAlreadySeated),
+        asyncErrorBoundary(reservationIdExists),
+        asyncErrorBoundary(validateTableCapacity),
+        asyncErrorBoundary(validateTableOccupied),
         asyncErrorBoundary(update)
     ],
-    unseat: asyncErrorBoundary(unseat)
+    unseat: [
+        asyncErrorBoundary(validateTable), 
+        asyncErrorBoundary(unseat)
+    ],
 }

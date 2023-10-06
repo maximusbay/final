@@ -12,9 +12,10 @@ function NewTable() {
 
     const changeHandler = (e) => {
         e.preventDefault()
+        let value = e.target.name === "capacity" ? Number(e.target.value) : e.target.value;
         setTableData({
             ...tableData,
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         })
         console.log(e.target.value)
     }
@@ -26,7 +27,7 @@ function NewTable() {
 
     return (
         <div>
-            <h2>Create a Table</h2>
+            <h2>Create Table</h2>
             <form onSubmit={handleSubmit}>
             <div>
             <label>Table Name</label>
@@ -38,7 +39,7 @@ function NewTable() {
             </div>
             <div className="mt-3">
             <button type="submit" className="btn btn-primary">Submit</button>
-            <button type="button" onClick={() => history.push("/dashboard")} className="btn btn-secondary m-2">Cancel</button>
+            <button type="button" onClick={() => history.goBack()} className="btn btn-secondary m-2">Cancel</button>
             </div>
             </form>
         </div>

@@ -286,6 +286,12 @@ describe("US-06 - Reservation status", () => {
 });
 
 function asDateString(date) {
+  if (typeof date === "string") {
+    date = new Date(date);
+  }
+  if (!(date instanceof Date)) {
+    throw new Error('The provided value is not a valid Date object or date string.');
+  }
   return `${date.getFullYear().toString(10)}-${(date.getMonth() + 1)
     .toString(10)
     .padStart(2, "0")}-${date.getDate().toString(10).padStart(2, "0")}`;

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import { listTables } from "../utils/api";
-import { updateTable } from "../utils/api";
- import { updateReservation } from "../utils/api";
+import { listTables, updateTable, updateReservation } from "../utils/api";
 
 function Seat(){
     const history = useHistory()
     const [ tables, setTables] = useState([])
     const [ tablesError, setTablesError] = useState(null)
     const [formData, setFormData] = useState({ table_id: ""});
+    const [error, setError] = useState(null);
 
     useEffect(loadTables, []);
 
@@ -35,20 +34,27 @@ function Seat(){
     const updatedReservation = { status: "seated" };
     const updatedTable = { 
         status: "occupied",
-        reservation_id: reservationId // Assuming reservationId holds the required reservation_id
+        reservation_id: reservationId 
     };
-    await updateReservation(reservationId, updatedReservation);
-    await updateTable(formData.table_id, updatedTable);
-    history.goBack();
+    try {
+      await updateReservation(reservationId, updatedReservation);
+      await updateTable(formData.table_id, updatedTable);
+      history.goBack();
+    } catch (error) {
+      setError(error.message);
+  }
 };
 
 return (
     <div>
+    <h1>Seat Reservation</h1>
+    <ErrorAlert error={error} />
     <ErrorAlert error={tablesError}/>
     <form onSubmit={handleSubmit}>
       <div>
       <label htmlFor="table_id">Table number:</label>
       <select name="table_id" id="table_id" value={formData.table_id} onChange={handleChange}>
+        <option>Select table</option>
         {tables.map((table) => (
           <option key={table.table_id} value={table.table_id}>
             {table.table_name} - {table.capacity}
@@ -58,7 +64,7 @@ return (
       </div>
       <div>
       <button type="submit" className="btn btn-primary">Submit</button>
-      <button type="button" onClick={() => history.goBack()} className="btn btn-secondary">Cancel</button>
+      <button type="button" onClick={() => history.goBack()} className="btn btn-secondary ml-2">Cancel</button>
       </div>
     </form>
     </div>

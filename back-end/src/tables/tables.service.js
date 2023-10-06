@@ -19,8 +19,7 @@ function update(updatedTable) {
 function unseat(table_id) {
     return knex("tables")
         .where({ table_id })
-        .update({ status: "free" }, "*") // Assuming "free" is the status representing an unoccupied table.
-        .then((rows) => rows[0]);
+        .update({ status: "free" }, "*")
 }
 
 function read(table_id) {

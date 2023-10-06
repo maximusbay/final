@@ -3,7 +3,7 @@ exports.up = function(knex) {
   return knex.schema.createTable("tables", (table) => {
     table.increments("table_id").primary().notNullable()
     table.string("table_name").notNullable()
-    table.string("capacity").notNullable()
+    table.integer("capacity").notNullable()
     table.string('status').defaultTo('free');
     table.integer("reservation_id").unsigned()
     table.foreign("reservation_id")
@@ -15,6 +15,10 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-    return knex.schema.dropTable("tables");
+  return knex.schema.hasTable('tables').then(function(exists) {
+      if (exists) {
+          return knex.schema.dropTable('tables');
+      }
+  });
 };
 

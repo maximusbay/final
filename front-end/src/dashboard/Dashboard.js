@@ -30,7 +30,7 @@ function Dashboard({ date }) {
     setReservationsError(null);
     
     const queryParams = new URLSearchParams(location.search);
-    const dateStr = queryParams.get('date') || new Date().toISOString().split('T')[0]; // default to today if no date is provided
+    const dateStr = queryParams.get('date') || new Date().toISOString().split('T')[0]; 
     
     setDateString(dateStr)
 
@@ -46,7 +46,7 @@ function Dashboard({ date }) {
   
   const handleNext = () => {
     const queryParams = new URLSearchParams(location.search);
-    const dateStr = queryParams.get('date') || new Date().toISOString().split('T')[0]; // default to today if no date is provided
+    const dateStr = queryParams.get('date') || new Date().toISOString().split('T')[0]; 
     
     const currentDate = new Date(dateStr); 
     const nextDate = new Date(currentDate.setDate(currentDate.getDate() + 1));

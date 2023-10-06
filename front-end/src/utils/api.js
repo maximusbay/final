@@ -57,7 +57,7 @@ async function fetchJson(url, options, onCancel) {
  * @returns {Promise<[reservation]>}
  *  a promise that resolves to a possibly empty array of reservation saved in the database.
  */
-
+// RESERVATION API CALLS
 export async function listReservations(params, signal) {
   const url = new URL(`${API_BASE_URL}/reservations`);
   Object.entries(params).forEach(([key, value]) =>
@@ -77,45 +77,14 @@ export async function createReservation(newReservation) {
     },
     body: JSON.stringify({ data: newReservation }),
   });
-  
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Network response was not ok: ${errorText}`);
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
   }
-
   return await response.json();
 }
 
-export async function listTables(signal) {
-  const url = `${API_BASE_URL}/tables`;
-  return await fetchJson(url, { headers, signal }, []);
-}
-
-export async function createTable(newTable) {
-  try {
-    const url = `${API_BASE_URL}/tables/new`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTable),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Network response was not ok: ${errorText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error during fetch operation: ', error);
-    throw error;
-  }
-}
-
 export async function updateReservation(reservationId, updatedReservation) {
-  try {
     const url = `${API_BASE_URL}/reservations/${reservationId}/seat`;
     const response = await fetch(url, {
       method: 'PUT',
@@ -124,21 +93,90 @@ export async function updateReservation(reservationId, updatedReservation) {
       },
       body: JSON.stringify({ data: updatedReservation }),
     });
-
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Network response was not ok: ${errorText}`);
+      const errorMessage = await response.text();
+      throw new Error(errorMessage);
     }
-    
     return await response.json();
-  } catch (error) {
-    console.error('Error during fetch operation: ', error);
-    throw error;
-  }
+}
+
+export async function updateReservationToFinished(reservationId, status) {
+    const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: { status } }),
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+}
+
+export async function updateReservationStatus(reservation_id, status) {
+  await fetch(`${API_BASE_URL}/reservations/${reservation_id}/status`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({data: {status}}),
+  });
+}
+
+export async function searchReservations(mobileNumber, signal) {
+  const url = new URL(`${API_BASE_URL}/reservations`);
+  url.searchParams.append("mobile_number", mobileNumber);
+
+  return await fetchJson(url, { headers, signal }, [])
+    .then(formatReservationDate)
+    .then(formatReservationTime);
+}
+
+export async function readReservation(reservation_id, signal) {
+    const url = `${API_BASE_URL}/reservations/${reservation_id}`;
+    return await fetchJson(url, { headers, signal });
+}
+
+export async function updateFullReservation(reservationId, updatedReservation) {
+  const url = `${API_BASE_URL}/reservations/${reservationId}`;
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ data: updatedReservation }),
+  };
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(response.statusText);
+  return response.json();
+}
+
+//TABLE API CALLS
+
+export async function listTables(signal) {
+  const url = `${API_BASE_URL}/tables`;
+  return await fetchJson(url, { headers, signal }, []);
+}
+
+export async function createTable(newTable) {
+    const url = `${API_BASE_URL}/tables`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: newTable }), 
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  
 }
 
 export async function updateTable(table_id, updatedTable) {
-  try {
     const url = `${API_BASE_URL}/tables/${table_id}/seat`;
     const response = await fetch(url, {
       method: 'PUT',
@@ -148,32 +186,20 @@ export async function updateTable(table_id, updatedTable) {
       body: JSON.stringify({ 
           data: { 
               ...updatedTable, 
-              reservation_id: updatedTable.reservation_id
           }
       }),
     });
-
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Network response was not ok: ${errorText}`);
+      const errorMessage = await response.text();
+      throw new Error(errorMessage);
     }
-    
     return await response.json();
-  } catch (error) {
-    console.error('Error during fetch operation: ', error);
-    throw error;
-  }
 }
 
-export async function handleFinish(table_id) {
-  if(window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
-      try {
-          await fetch(`${API_BASE_URL}/tables/${table_id}/seat`, {
-              method: 'DELETE',
-          });
-          window.location.reload();
-      } catch (error) {
-          console.error('Error during DELETE operation: ', error);
-      }
-  }
+export async function updateTableStatus(table_id, status) {
+  await fetch(`${API_BASE_URL}/tables/${table_id}/seat`, {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({data: {status}}),
+  });
 }
