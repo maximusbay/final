@@ -21,8 +21,8 @@ function Tables({ tables, onTableStatusChange }) {
   };
 
   return (
-    <div>
-      <table>
+    <div className="table-responsive">
+      <table className="table w-100">
         <thead>
           <tr>
             <th>Table Name</th>

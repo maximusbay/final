@@ -33,8 +33,8 @@ function Reservations({ reservations }) {
   }
 
   return (
-    <div>
-      <table>
+    <div className="table-responsive">
+      <table className="table w-100">
         <thead>
           <tr>
             <th>First Name</th>
