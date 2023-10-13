@@ -71,9 +71,9 @@ export async function listReservations(params, signal) {
 export async function createReservation(newReservation) {
   const url = `${API_BASE_URL}/reservations`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ data: newReservation }),
   });
@@ -85,42 +85,42 @@ export async function createReservation(newReservation) {
 }
 
 export async function updateReservation(reservationId, updatedReservation) {
-    const url = `${API_BASE_URL}/reservations/${reservationId}/seat`;
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: updatedReservation }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
-    }
-    return await response.json();
+  const url = `${API_BASE_URL}/reservations/${reservationId}/seat`;
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: updatedReservation }),
+  });
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+  return await response.json();
 }
 
 export async function updateReservationToFinished(reservationId, status) {
-    const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: { status } }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
-    }
-    return await response.json();
+  const url = `${API_BASE_URL}/reservations/${reservationId}/status`;
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: { status } }),
+  });
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+  return await response.json();
 }
 
 export async function updateReservationStatus(reservation_id, status) {
   await fetch(`${API_BASE_URL}/reservations/${reservation_id}/status`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({data: {status}}),
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: { status } }),
   });
 }
 
@@ -134,24 +134,29 @@ export async function searchReservations(mobileNumber, signal) {
 }
 
 export async function readReservation(reservation_id, signal) {
-    const url = `${API_BASE_URL}/reservations/${reservation_id}`;
-    return await fetchJson(url, { headers, signal });
+  const url = `${API_BASE_URL}/reservations/${reservation_id}`;
+  return await fetchJson(url, { headers, signal });
 }
 
 export async function updateFullReservation(reservationId, updatedReservation) {
   const url = `${API_BASE_URL}/reservations/${reservationId}`;
   const options = {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ data: updatedReservation }),
   };
+
   const response = await fetch(url, options);
-  if (!response.ok) throw new Error(response.statusText);
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || response.statusText); // Prefer the backend's error message if available
+  }
+
   return response.json();
 }
-
 //TABLE API CALLS
 
 export async function listTables(signal) {
@@ -160,46 +165,45 @@ export async function listTables(signal) {
 }
 
 export async function createTable(newTable) {
-    const url = `${API_BASE_URL}/tables`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: newTable }), 
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
-    }
-    return await response.json();
-  
+  const url = `${API_BASE_URL}/tables`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: newTable }),
+  });
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+  return await response.json();
 }
 
 export async function updateTable(table_id, updatedTable) {
-    const url = `${API_BASE_URL}/tables/${table_id}/seat`;
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+  const url = `${API_BASE_URL}/tables/${table_id}/seat`;
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      data: {
+        ...updatedTable,
       },
-      body: JSON.stringify({ 
-          data: { 
-              ...updatedTable, 
-          }
-      }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
-    }
-    return await response.json();
+    }),
+  });
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+  return await response.json();
 }
 
 export async function updateTableStatus(table_id, status) {
   await fetch(`${API_BASE_URL}/tables/${table_id}/seat`, {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({data: {status}}),
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: { status } }),
   });
 }
