@@ -11,6 +11,7 @@ function Search() {
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    const controller = new AbortController();
     setIsLoading(true);
     setError(null);
 
@@ -29,6 +30,7 @@ function Search() {
     } finally {
       setIsLoading(false);
     }
+    return () => controller.abort();
   };
 
   return (

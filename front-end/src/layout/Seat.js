@@ -29,6 +29,7 @@ function Seat() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const controller = new AbortController();
     const updatedReservation = { status: "seated" };
     const updatedTable = {
       status: "occupied",
@@ -41,6 +42,7 @@ function Seat() {
     } catch (error) {
       setError(error.message);
     }
+    return () => controller.abort();
   };
 
   return (

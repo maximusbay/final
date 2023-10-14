@@ -45,6 +45,7 @@ function NewReservation() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const controller = new AbortController();
     setError(null);
 
     createReservation({
@@ -60,7 +61,9 @@ function NewReservation() {
         console.error(error);
         setError(error.message);
       });
+    return () => controller.abort();
   };
+
   const formData = {
     first_name: firstName,
     last_name: lastName,

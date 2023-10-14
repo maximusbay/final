@@ -118,15 +118,13 @@ async function validateTableOccupied(req, res, next) {
 
 async function validateNotAlreadySeated(req, res, next) {
   const { reservation_id } = req.body.data;
-  const table = await service.read(reservation_id);
-
-  // if (table.reservation_id) {
-  //   return next({
-  //     status: 400,
-  //     message: `Reservation is already seated.`,
-  //   });
-  // }
-
+  const reservation = await reservationsService.read(reservation_id);
+  if (reservation.status === "seated") {
+    return next({
+      status: 400,
+      message: "Reservation is already seated.",
+    });
+  }
   next();
 }
 
