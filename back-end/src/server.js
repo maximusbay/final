@@ -1,20 +1,16 @@
-const { PORT = 5001 } = process.env;
-DATABASE_URL =
-  "postgres://gyxqhtdo:gGpNAHKYu7aDnvFtmvJUfabYhhLxr-Pw@bubble.db.elephantsql.com/gyxqhtdo";
+const { PORT = 5000 } = process.env;
 
 const app = require("./app");
 const knex = require("./db/connection");
 
-console.log(`Using DATABASE_URL: ${DATABASE_URL}`);
-
 knex.migrate
   .latest()
   .then((migrations) => {
-    console.log("Migrations successful:", migrations);
-    app.listen("0.0.0.0", PORT, listener);
+    console.log("migrations", migrations);
+    app.listen(PORT, listener);
   })
   .catch((error) => {
-    console.error("Error running migrations:", error);
+    console.error(error);
     knex.destroy();
   });
 
