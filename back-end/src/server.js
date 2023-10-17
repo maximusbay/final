@@ -1,4 +1,6 @@
-const { PORT = 5001, DATABASE_URL } = process.env;
+const { PORT = 5001 } = process.env;
+DATABASE_URL =
+  "postgres://gyxqhtdo:gGpNAHKYu7aDnvFtmvJUfabYhhLxr-Pw@bubble.db.elephantsql.com/gyxqhtdo";
 
 const app = require("./app");
 const knex = require("./db/connection");
