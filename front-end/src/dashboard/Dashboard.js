@@ -25,7 +25,7 @@ function Dashboard({ date }) {
   useEffect(loadDashboard, [location.search]);
 
   function reloadDashboardData() {
-    loadDashboard(); // this function already loads the data for dashboard
+    loadDashboard();
   }
 
   function loadDashboard() {
@@ -42,7 +42,7 @@ function Dashboard({ date }) {
       .then(setReservations)
       .catch(setReservationsError);
 
-    listTables(abortController.signal).then(setTables).catch(setTablesError);
+    //listTables(abortController.signal).then(setTables).catch(setTablesError);
     return () => abortController.abort();
   }
 

@@ -12,7 +12,6 @@ function Edit() {
 
   useEffect(() => {
     const abortController = new AbortController();
-
     readReservation(reservation_id, abortController.signal)
       .then(setFormData)
       .catch((error) => console.error("Error fetching data: ", error));
