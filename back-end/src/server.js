@@ -1,16 +1,18 @@
-const { PORT = 5001 } = process.env;
+const { PORT = 5001, DATABASE_URL } = process.env;
 
 const app = require("./app");
 const knex = require("./db/connection");
 
+console.log(`Using DATABASE_URL: ${DATABASE_URL}`);
+
 knex.migrate
   .latest()
   .then((migrations) => {
-    console.log("migrations", migrations);
-    app.listen(PORT, "0.0.0.0", listener);
+    console.log("Migrations successful:", migrations);
+    app.listen("0.0.0.0", PORT, listener);
   })
   .catch((error) => {
-    console.error(error);
+    console.error("Error running migrations:", error);
     knex.destroy();
   });
 
