@@ -1,6 +1,15 @@
 import React from "react";
 
 function Form({ formData, handleChange, handleSubmit, onCancel }) {
+  const phonePattern = /^[0-9-]*$/;
+
+  const handlePhoneChange = (e) => {
+    const inputValue = e.target.value;
+    if (phonePattern.test(inputValue)) {
+      handleChange(e);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div>
@@ -32,7 +41,7 @@ function Form({ formData, handleChange, handleSubmit, onCancel }) {
           className="form-control"
           type="text"
           value={formData.mobile_number}
-          onChange={handleChange}
+          onChange={handlePhoneChange}
         />
       </div>
       <div>
